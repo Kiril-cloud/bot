@@ -47,12 +47,12 @@ vip = InlineKeyboardButton('VIP', callback_data = 'vip')
 no = InlineKeyboardButton('Отклонить', callback_data = 'no')
 adminKB.add(partner, pro, vip, no)
 
-tarif = InlineKeyboardMarkup(row_width = 2)
+tariff = InlineKeyboardMarkup(row_width = 2)
 ar = InlineKeyboardButton('Серебро', callback_data = 'ar')
 au = InlineKeyboardButton('Золото', callback_data = 'au')
 pt = InlineKeyboardButton('Платина', callback_data = 'pt')
 br = InlineKeyboardButton('Брилиант', callback_data = 'br')
-tarif.add(ar, au, pt, br)
+tariff.add(ar, au, pt, br)
 
 
 @bot.message_handler(commands = ['start', 'help'])
@@ -108,7 +108,7 @@ def keyboard(c):
 		
 	if c.data == 'vip':
 		config.id = c.message.text[c.message.text.find(':') + 2 :]
-		bot.edit_message_text(chat_id=c.message.chat.id, message_id=c.message.message_id, text='Какой именно тариф?', reply_markup = tarif)
+		bot.edit_message_text(chat_id=c.message.chat.id, message_id=c.message.message_id, text='Какой именно тариф?', reply_markup = tariff)
 		
 	if c.data == 'setData':		
 		try:
@@ -195,7 +195,7 @@ def message(message):
 		#	bot.send_message(message.chat.id, 'Eсли Вы хотите дизайн, индивидуальный контентный план, администратора для ведения соц сетей или заказать любую другую услугу пишите в это чат. Мы поможем Вам зарабатывать больше!')
 		
 	if subscribe == False and message.chat.id != config.admin and message.chat.id != config.post:
-			bot.send_message(message.chat.id, 'Срок действия вашей подписки истек или вы её не купили. Если подписка куплена приишлите нам свой логин и нажмите на кнопку: ', reply_markup = hi_kb)
+			#bot.send_message(message.chat.id, 'Срок действия вашей подписки истек или вы её не купили. Если подписка куплена приишлите нам свой логин и нажмите на кнопку: ', reply_markup = hi_kb)
 			setChanel(message.chat.id, 'KirilIProger')
 			setTarif(message.chat.id, 'no')
 				
