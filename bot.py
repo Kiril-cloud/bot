@@ -255,11 +255,16 @@ def message(message):
 		
 # Функции для работы с базой данных			
 def AddUser(id, login, tarif, data, chanel):
-	sql.execute(f"SELECT id FROM users WHERE id = '{id}' ")
-	if sql.fetchone() is None:
-		sql.execute("SELECT id FROM users")
-		sql.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (id, login, 'no', data, chanel, ''))
-		db.commit()
+  try:
+  	sql.execute(f"SELECT id FROM users WHERE id = '{id}' ")
+  	if sql.fetchone() is None:
+  		sql.execute("SELECT id FROM users")
+  		sql.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (id, login, 'no', data, chanel, ''))
+  		db.commit()
+  except:
+    sql.execute("SELECT id FROM users")
+  	sql.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (id, login, 'no', data, chanel, ''))
+  	db.commit()
 
 def setTarif(id, tarif):
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
