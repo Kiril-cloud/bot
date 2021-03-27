@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import telebot
 import sqlite3
 import datetime
@@ -9,6 +10,18 @@ import config
 
 bot = telebot.TeleBot('1640616666:AAH4BSB_8a-75IU0E0mRZHJdk5UgqKpEoLM')
 
+
+db = sqlite3.connect('users.db')
+sql = db.cursor()
+sql.execute("""CREATE TABLE IF NOT EXISTS users (
+	  id INT,
+		login TEXT,
+		tarif TEXT,
+		date TEXT,
+		chanel TEXT,
+		info TEXT
+	)""")
+db.commit()
 
 # Клавиатура в боте
 hi_kb = InlineKeyboardMarkup(row_width = 1)
@@ -151,9 +164,6 @@ def keyboard(c):
 
 @bot.message_handler(content_types=['text', 'photo'])
 def message(message):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
-	
 	try:
 		sql.execute(f'SELECT tarif FROM users WHERE id = "{message.chat.id}" ')
 		tarif = sql.fetchone()
@@ -245,17 +255,6 @@ def message(message):
 		
 # Функции для работы с базой данных			
 def AddUser(id, login, tarif, data, chanel):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
-	sql.execute("""CREATE TABLE IF NOT EXISTS users (
-			id INT,
-			login TEXT,
-			tarif TEXT,
-			date TEXT,
-			chanel TEXT,
-			info TEXT
-	)""")
-	db.commit()
 	sql.execute(f"SELECT id FROM users WHERE id = '{id}' ")
 	if sql.fetchone() is None:
 		sql.execute("SELECT id FROM users")
@@ -263,17 +262,6 @@ def AddUser(id, login, tarif, data, chanel):
 		db.commit()
 
 def setTarif(id, tarif):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
-	sql.execute("""CREATE TABLE IF NOT EXISTS users (
-			id INT,
-			login TEXT,
-			tarif TEXT,
-			date TEXT,
-			chanel TEXT,
-			info TEXT
-	)""")
-	db.commit()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -283,17 +271,6 @@ def setTarif(id, tarif):
 		
 		
 def setLogin(id, login):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
-	sql.execute("""CREATE TABLE IF NOT EXISTS users (
-			id INT,
-			login TEXT,
-			tarif TEXT,
-			date TEXT,
-			chanel TEXT,
-			info TEXT
-	)""")
-	db.commit()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -302,17 +279,6 @@ def setLogin(id, login):
 		db.commit()
 		
 def setData(id, date):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
-	sql.execute("""CREATE TABLE IF NOT EXISTS users (
-			id INT,
-			login TEXT,
-			tarif TEXT,
-			date TEXT,
-			chanel TEXT,
-			info TEXT
-	)""")
-	db.commit()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -321,17 +287,6 @@ def setData(id, date):
 		db.commit()
 		
 def setChanel(id, chanel):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
-	sql.execute("""CREATE TABLE IF NOT EXISTS users (
-			id INT,
-			login TEXT,
-			tarif TEXT,
-			date TEXT,
-			chanel TEXT,
-			info TEXT
-	)""")
-	db.commit()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -341,17 +296,6 @@ def setChanel(id, chanel):
 		db.commit()
 		
 def setInfo(id, info):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
-	sql.execute("""CREATE TABLE IF NOT EXISTS users (
-			id INT,
-			login TEXT,
-			tarif TEXT,
-			date TEXT,
-			chanel TEXT,
-			info TEXT
-	)""")
-	db.commit()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
