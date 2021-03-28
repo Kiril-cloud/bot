@@ -21,7 +21,6 @@ sql.execute("""CREATE TABLE IF NOT EXISTS users (
 		chanel TEXT,
 		info TEXT
 	)""")
-db.commit()
 
 # Клавиатура в боте
 hi_kb = InlineKeyboardMarkup(row_width = 1)
@@ -70,8 +69,8 @@ tariff.add(ar, au, pt, br)
 
 @bot.message_handler(commands = ['start', 'help'])
 def welcome(message):
-  db = sqlite3.connect('users.db')
-  sql = db.cursor()
+	#db = sqlite3.connect('users.db')
+	#sql = db.cursor()
 	AddUser(message.from_user.id, '', '', '', '')
 	bot.send_message(message.chat.id, f'Пpиветствуем, {message.from_user.first_name}! \n Добро пожаловать в клуб Strike Team🤗\n Введите Ваш логин и затем нажмите на кнопку:', reply_markup = hi_kb)
 
@@ -79,8 +78,8 @@ def welcome(message):
 # Обработчик клавиатуры
 @bot.callback_query_handler(func=lambda c:True)
 def keyboard(c):
-	db = sqlite3.connect('users.db')
-	sql = db.cursor()
+	#db = sqlite3.connect('users.db')
+	#sql = db.cursor()
 	if c.data == 'par' or c.data == 'pro' or c.data == 'ar' or c.data == 'au' or c.data == 'pt' or c.data == 'br':
 		config.tarif = {
 				c.data == 'par': 'ПАРТНЕР',
@@ -154,6 +153,8 @@ def keyboard(c):
 		else:
 			chanel = chane[chane.find('/') + 1:]	
 		setChanel(config.ID, chanel)
+		db = sqlite3.connect('users.db')
+		sql = db.cursor()
 		bot.send_message(c.message.chat.id, 'Отлично! \n Теперь добавте бота в администраторы вашего канала, чтобы работал автопостинг.', reply_markup = compleet)
 		sql.execute(f'SELECT tarif FROM users WHERE id = "{c.message.chat.id}" ')
 		tarif = sql.fetchone()
@@ -162,13 +163,16 @@ def keyboard(c):
 		sub = sub.replace('\'', '')
 		sub = sub.replace(',', '')
 		sub = sub.replace(')', '')
+		db.commit()
 
 
 @bot.message_handler(content_types=['text', 'photo'])
 def message(message):
-  db = sqlite3.connect('users.db')
-  sql = db.cursor()
+	#db = sqlite3.connect('users.db')
+	#sql = db.cursor()
 	try:
+		db = sqlite3.connect('users.db')
+		sql = db.cursor()
 		sql.execute(f'SELECT tarif FROM users WHERE id = "{message.chat.id}" ')
 		tarif = sql.fetchone()
 		sql.execute(f'SELECT date FROM users WHERE id = "{message.chat.id}" ')
@@ -187,10 +191,12 @@ def message(message):
 			subscribe = True
 		else:
 			subscribe = False
-	except:
+	except Exception as e:
+		print(e)
 		subscribe = False
 		
 	config.message = message.text
+	print(config.message)
 	config.ID = message.from_user.id
 	
 	if subscribe == True and message.chat.id != config.post:
@@ -200,6 +206,7 @@ def message(message):
 		if message.text == 'Готово' and message.chat.id != config.admin:
 			bot.send_message(message.chat.id, 'Отлично! Теперь Вы автоматически будете получать публикации постов на тему инвестиций и дополнительного заработка в вашем канале.')
 			bot.send_message(message.chat.id, 'Eсли Вы хотите дизайн, индивидуальный контентный план, администратора для ведения соц сетей или заказать любую другую услугу пишите в этот чат. Мы поможем Вам зарабатывать больше!')
+			print(sub)
 			if sub == 'VIP':
 					bot.send_message(message.chat.id, 'Пришлите информацию о вас: \n Ваше ФИО \n Дату рождения \n Номер телефона \n после этого нажмите на кнопку: \n Внимание присылать одним сообщением!', reply_markup = set_info)
 			
@@ -214,22 +221,32 @@ def message(message):
 			setTarif(message.chat.id, 'no')
 				
 
-	sql.execute(f'SELECT tarif FROM users WHERE id = "{message.chat.id}" ')
-	tarif = sql.fetchone()
-	sub = str(tarif)
-	sub = sub.replace('(', '')
-	sub = sub.replace('\'', '')
-	sub = sub.replace(',', '')
-	sub = sub.replace(')', '')
-# Отправка информации от VIP клиентов
-	if sub == 'VIP':
-		try:
-			idphoto = message.photo[0].file_id
-			sql.execute(f" SELECT info FROM users WHERE id = '{message.chat.id}' ")
-			info = sql.fetchone()
-			bot.send_photo(config.info, idphoto, info)
-		except:
-			pass
+	try:
+		db = sqlite3.connect('users.db')
+		sq = db.cursor()
+		sq.execute(f'SELECT tarif FROM users WHERE id = "{message.chat.id}" ')
+		tarif = sq.fetchone()
+		sub = str(tarif)
+		sub = sub.replace('(', '')
+		sub = sub.replace('\'', '')
+		sub = sub.replace(',', '')
+		sub = sub.replace(')', '')
+		db.commit()
+	# Отправка информации от VIP клиентов
+		if sub == 'VIP':
+			try:
+				db = sqlite3.connect('users.db')
+				sql = db.cursor()
+				idphoto = message.photo[0].file_id
+				sql.execute(f" SELECT info FROM users WHERE id = '{message.chat.id}' ")
+				info = sql.fetchone()
+				print(info)
+				bot.send_photo(config.info, idphoto, info)
+				db.commit()
+			except Exception as e:
+				pass
+	except:
+		pass
 		
 		
 	# Автопостинг
@@ -268,60 +285,76 @@ def AddUser(id, login, tarif, data, chanel):
   		sql.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (id, login, 'no', data, chanel, ''))
   		db.commit()
   except:
-    sql.execute("SELECT id FROM users")
+  	sql.execute("SELECT id FROM users")
   	sql.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (id, login, 'no', data, chanel, ''))
   	db.commit()
 
 def setTarif(id, tarif):
-  db = sqlite3.connect('users.db')
-  sql = db.cursor()
-	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
-	if sql.fetchone() is None:
-		pass #('NONE	USER')
-	else:
-		sql.execute(f' UPDATE users SET tarif = "{tarif}" WHERE id = "{id}" ')
-		db.commit()
+	try:
+		#db = sqlite3.connect('users.db')
+		#sql = db.cursor()
+		sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
+		if sql.fetchone() is None:
+			pass #('NONE	USER')
+		else:
+			sql.execute(f' UPDATE users SET tarif = "{tarif}" WHERE id = "{id}" ')
+			db.commit()
+	except:
+		pass
 		
 def setLogin(id, login):
-  db = sqlite3.connect('users.db')
-  sql = db.cursor()
-	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
-	if sql.fetchone() is None:
-		pass #('NONE	USER')
-	else:
-		sql.execute(f' UPDATE users SET login = "{login}" WHERE id = "{id}" ')
-		db.commit()
+	try:
+		#db = sqlite3.connect('users.db')
+		#sql = db.cursor()
+		sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
+		if sql.fetchone() is None:
+			pass #('NONE	USER')
+		else:
+			sql.execute(f' UPDATE users SET login = "{login}" WHERE id = "{id}" ')
+			db.commit()
+	except:
+		pass
 		
 def setData(id, date):
-  db = sqlite3.connect('users.db')
-  sql = db.cursor()
-	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
-	if sql.fetchone() is None:
-		pass #('NONE	USER')
-	else:
-		sql.execute(f' UPDATE users SET date = "{date}" WHERE id = "{id}" ')
-		db.commit()
+	try:
+		#db = sqlite3.connect('users.db')
+		#sql = db.cursor()
+		sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
+		if sql.fetchone() is None:
+			pass #('NONE	USER')
+		else:
+			sql.execute(f' UPDATE users SET date = "{date}" WHERE id = "{id}" ')
+			db.commit()
+	except:
+		pass
 		
 def setChanel(id, chanel):
-  db = sqlite3.connect('users.db')
-  sql = db.cursor()
-	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
-	if sql.fetchone() is None:
-		pass #('NONE	USER')
-	else:
-		chan = '@' + chanel
-		sql.execute(f' UPDATE users SET chanel = "{chan}" WHERE id = "{id}" ')
-		db.commit()
+	#db = sqlite3.connect('users.db')
+	#sql = db.cursor()
+	try:
+		sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
+		if sql.fetchone() is None:
+			pass #('NONE	USER')
+		else:
+			chan = '@' + chanel
+			sql.execute(f' UPDATE users SET chanel = "{chan}" WHERE id = "{id}" ')
+			db.commit()
+	except:
+		pass
 		
 def setInfo(id, info):
-  db = sqlite3.connect('users.db')
-  sql = db.cursor()
-	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
-	if sql.fetchone() is None:
-		pass #('NONE	USER')
-	else:
-		sql.execute(f' UPDATE users SET info = "{info}" WHERE id = "{id}" ')
-		db.commit()
+	try:
+		db = sqlite3.connect('users.db')
+		sql = db.cursor()
+		sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
+		if sql.fetchone() is None:
+			pass #('NONE	USER')
+		else:
+			sql.execute(f' UPDATE users SET info = "{info}" WHERE id = "{id}" ')
+			db.commit()
+	except Exception as e:
+		print(e)
 	
 
+db.commit()
 bot.polling()
