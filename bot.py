@@ -69,7 +69,9 @@ tariff.add(ar, au, pt, br)
 
 
 @bot.message_handler(commands = ['start', 'help'])
-def welcome(message):	
+def welcome(message):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
 	AddUser(message.from_user.id, '', '', '', '')
 	bot.send_message(message.chat.id, f'Пpиветствуем, {message.from_user.first_name}! \n Добро пожаловать в клуб Strike Team🤗\n Введите Ваш логин и затем нажмите на кнопку:', reply_markup = hi_kb)
 
@@ -164,6 +166,8 @@ def keyboard(c):
 
 @bot.message_handler(content_types=['text', 'photo'])
 def message(message):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
 	try:
 		sql.execute(f'SELECT tarif FROM users WHERE id = "{message.chat.id}" ')
 		tarif = sql.fetchone()
@@ -255,6 +259,8 @@ def message(message):
 		
 # Функции для работы с базой данных			
 def AddUser(id, login, tarif, data, chanel):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
   try:
   	sql.execute(f"SELECT id FROM users WHERE id = '{id}' ")
   	if sql.fetchone() is None:
@@ -267,6 +273,8 @@ def AddUser(id, login, tarif, data, chanel):
   	db.commit()
 
 def setTarif(id, tarif):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -274,8 +282,9 @@ def setTarif(id, tarif):
 		sql.execute(f' UPDATE users SET tarif = "{tarif}" WHERE id = "{id}" ')
 		db.commit()
 		
-		
 def setLogin(id, login):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -284,6 +293,8 @@ def setLogin(id, login):
 		db.commit()
 		
 def setData(id, date):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -292,6 +303,8 @@ def setData(id, date):
 		db.commit()
 		
 def setChanel(id, chanel):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
@@ -301,6 +314,8 @@ def setChanel(id, chanel):
 		db.commit()
 		
 def setInfo(id, info):
+  db = sqlite3.connect('users.db')
+  sql = db.cursor()
 	sql.execute(f'SELECT id FROM users WHERE id = "{id}" ')
 	if sql.fetchone() is None:
 		pass #('NONE	USER')
